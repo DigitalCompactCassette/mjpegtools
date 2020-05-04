@@ -21,7 +21,7 @@
  * 7/27/92  Masahiro Iwadare    Bug fix, "new", "old", and "oldest"
  *                              updates
  * 8/07/92  Mike Coleman        Bug fix, read_absthr()
- * 10/4/2005 Steven Schultz	Speedup by avoiding the malloc/free simulation
+ * 10/4/2005 Steven Schultz Speedup by avoiding the malloc/free simulation
  *                              of automatic variables.
 */
 
@@ -130,15 +130,15 @@ double sfreq;        /* to match prototype : float args are always double */
 
      i = sfreq + 0.5;
      switch(i) 
-	 {
-	 case 32000: 
-		 sfreq_idx = 0; break;
-	 case 44100: 
-		 sfreq_idx = 1; break;
-	 case 48000: 
-		 sfreq_idx = 2; break;
-	 default: 
-		 mjpeg_error_exit1("invalid sampling frequency: %d Hz",i);
+     {
+     case 32000: 
+         sfreq_idx = 0; break;
+     case 44100: 
+         sfreq_idx = 1; break;
+     case 48000: 
+         sfreq_idx = 2; break;
+     default: 
+         mjpeg_error_exit1("invalid sampling frequency: %d Hz",i);
      }
 
      read_absthr(absthr, sfreq_idx);
@@ -341,16 +341,16 @@ temp2=r[chn][new][j] * sin((double) phi[j]) - r_prime * sin((double) phi_prime);
  *         this whole section can be accomplished by a table lookup
 */
         for(j=0;j<CBANDS;j++)
-		{
-			nb[j] = rnorm[j]*numlines[j];
-			if(nb[j] != 0.0)
-				nb[j] = ecb[j]*bc[j]/nb[j];
-		}
-		/* ORIGINAL: Dangerously hacky code as rnorm is a FLOAT*!!!!
-		   if(rnorm[j] && numlines[j])
+        {
+            nb[j] = rnorm[j]*numlines[j];
+            if(nb[j] != 0.0)
+                nb[j] = ecb[j]*bc[j]/nb[j];
+        }
+        /* ORIGINAL: Dangerously hacky code as rnorm is a FLOAT*!!!!
+           if(rnorm[j] && numlines[j])
               nb[j] = ecb[j]*bc[j]/(rnorm[j]*numlines[j]);
            else nb[j] = 0;
-		*/
+        */
         for(j=0;j<HBLKSIZE;j++){
 /* temp1 is the preliminary threshold */
            temp1=nb[partition[j]];
@@ -402,9 +402,9 @@ temp2=r[chn][new][j] * sin((double) phi[j]) - r_prime * sin((double) phi_prime);
      }
      break;
   case 3:
-	  mjpeg_error_exit1("layer 3 is not currently supported");
+     mjpeg_error_exit1("layer 3 is not currently supported");
      break;
   default:
-	  mjpeg_error_exit1("invalid MPEG/audio coding layer: %d",lay);
+     mjpeg_error_exit1("invalid MPEG/audio coding layer: %d",lay);
  }
 }

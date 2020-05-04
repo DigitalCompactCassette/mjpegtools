@@ -126,7 +126,7 @@ musicin.c
 
 FILE               *musicin;
 Bit_stream_struc   bs;
-int		   verbose = 1;
+int                verbose = 1;
 char               *programName;
 
 /* Global variables */
@@ -198,76 +198,76 @@ char            **encoded_file_name;
     {
         switch(n) {
 
-		case 'b':
-			brt = atoi(optarg);
-			break;
-		case 'o':
-			outfilename = optarg;
-			break;
-		case 'r':
-			freq_out = atoi(optarg);
-    			if (freq_out!=32000 && freq_out!=44100 && freq_out!=48000)
-       			mjpeg_error_exit1("-r requires one of 32000 44100 48000!");
-			break;
-                case 'R':
-                        pos = optarg;
-                        /* Frequency */
-                        freq_in = strtol(pos, &end, 10);
-                        if(pos == end)
-                        mjpeg_error_exit1("-R requires rate,chans,bits!");
-                        pos = end;
-                        if(*pos != ',')
-                        mjpeg_error_exit1("-R requires rate,chans,bits!");
-                        pos++;
-                        /* Channels */
-                        chans_in = strtol(pos, &end, 10);
-                        if(pos == end)
-                        mjpeg_error_exit1("-R requires rate,chans,bits!");
-                        pos = end;
-                        if(*pos != ',')
-                        mjpeg_error_exit1("-R requires rate,chans,bits!");
-                        pos++;
-                        /* Bits */
-                        audio_bits = strtol(pos, &end, 10);
-                        if(pos == end)
-                        mjpeg_error_exit1("-R requires rate,chans,bits!");
-                        raw_in = 1;
-			break;
-		case 'l':
-			info->lay = atoi(optarg);
-    			if (info->lay!=2 && info->lay!=1)
-       			mjpeg_error_exit1("-l requires 1 or 2!");
-			break;
-		case 's':
-			stereo = 1;
-			mono = 0;
-			chans_out = 2;
-			break;
-		case 'm':
-			mono = 1;
-			stereo = 0;
-    			chans_out = 1;
-			break;
-		case 'e':
+        case 'b':
+            brt = atoi(optarg);
+            break;
+        case 'o':
+            outfilename = optarg;
+            break;
+        case 'r':
+            freq_out = atoi(optarg);
+                if (freq_out!=32000 && freq_out!=44100 && freq_out!=48000)
+                mjpeg_error_exit1("-r requires one of 32000 44100 48000!");
+            break;
+        case 'R':
+                pos = optarg;
+                /* Frequency */
+                freq_in = strtol(pos, &end, 10);
+                if(pos == end)
+                mjpeg_error_exit1("-R requires rate,chans,bits!");
+                pos = end;
+                if(*pos != ',')
+                mjpeg_error_exit1("-R requires rate,chans,bits!");
+                pos++;
+                /* Channels */
+                chans_in = strtol(pos, &end, 10);
+                if(pos == end)
+                mjpeg_error_exit1("-R requires rate,chans,bits!");
+                pos = end;
+                if(*pos != ',')
+                mjpeg_error_exit1("-R requires rate,chans,bits!");
+                pos++;
+                /* Bits */
+                audio_bits = strtol(pos, &end, 10);
+                if(pos == end)
+                mjpeg_error_exit1("-R requires rate,chans,bits!");
+                raw_in = 1;
+            break;
+        case 'l':
+            info->lay = atoi(optarg);
+                if (info->lay!=2 && info->lay!=1)
+                mjpeg_error_exit1("-l requires 1 or 2!");
+            break;
+        case 's':
+            stereo = 1;
+            mono = 0;
+            chans_out = 2;
+            break;
+        case 'm':
+            mono = 1;
+            stereo = 0;
+                chans_out = 1;
+            break;
+        case 'e':
                         info->error_protection = 1;
-			break;
-		case 'V':
-			video_cd = 1;
-			break;
-	        case 'v':
-			verbose = atoi(optarg);
-			if( verbose < 0 || verbose > 2 )
-				Usage(argv[0]);
-			break;
-		case '?':
-			Usage(argv[0]);
+            break;
+        case 'V':
+            video_cd = 1;
+            break;
+            case 'v':
+            verbose = atoi(optarg);
+            if( verbose < 0 || verbose > 2 )
+                Usage(argv[0]);
+            break;
+        case '?':
+            Usage(argv[0]);
         }
     }
 
     (void)mjpeg_default_handler_verbosity(verbose);
 
     if(argc!=optind) 
-		Usage(argv[0]);
+        Usage(argv[0]);
 
     if(outfilename==0)
     {
@@ -312,35 +312,30 @@ char            **encoded_file_name;
        info->mode = MPG_MD_STEREO;
     if(video_cd && info->lay != 2 )
        mjpeg_error_exit1("Option -V requires layer II!");
-    if	(video_cd)
-        {
+    if  (video_cd) {
         freq_out=44100;
-	if (chans_out == 2)
-	   {
-           switch (brt)
-                  {
-		  case	128:
-		  case	192:
-		  case	224:
-		  case	384:
-		        break;
-		  default:
-		        mjpeg_error_exit1("-b %d not valid with stereo. Bitrate must be 128, 192, 224 or 384", brt);
-		  }
-	    }
-	else if (chans_out == 1)
-	    {
-	    switch (brt)
-	           {
-		   case 64:
-		   case 96:
-		   case 192:
-		        break;
-		   default:
-		        mjpeg_error_exit1("-b %d not valid with mono. Bitrate must be 64, 96 or 192", brt);
-		   }
-	     }
+        if (chans_out == 2) {
+            switch (brt) {
+                case    128:
+                case    192:
+                case    224:
+                case    384:
+                      break;
+                default:
+                      mjpeg_error_exit1("-b %d not valid with stereo. Bitrate must be 128, 192, 224 or 384", brt);
+            }
         }
+        else if (chans_out == 1) {
+            switch (brt) {
+                case 64:
+                case 96:
+                case 192:
+                    break;
+                default:
+                    mjpeg_error_exit1("-b %d not valid with mono. Bitrate must be 64, 96 or 192", brt);
+            }
+        }
+    }
 
     if(freq_out==0) freq_out = freq_in;
     switch (freq_out) {
@@ -355,18 +350,18 @@ char            **encoded_file_name;
            break;
        default:
            mjpeg_error_exit1("Frequency must be one of 32000 44100 48000"
-					   " unless -r is used!");
+                             " unless -r is used!");
     }
 
     *num_samples = audio_bytes/(audio_bits/8);
 
     if (brt==0)
-	{
+    {
         if (info->lay==2)
             brt = (info->mode == MPG_MD_MONO) ? 112 : 224;
         else
             brt = (info->mode == MPG_MD_MONO) ? 192 : 384;
-	}
+    }
 
     for(j=0;j<15;j++) if (bitrate[info->lay-1][j] == brt) break;
 
@@ -393,22 +388,22 @@ int     *psy;
 unsigned long *num_samples;
 char    *outPath;
 {
-	layer *info = fr_ps->header;
+    layer *info = fr_ps->header;
 
-	mjpeg_debug("Encoding configuration:");
-	if(info->mode != MPG_MD_JOINT_STEREO)
-		mjpeg_debug("Layer=%s   mode=%s   extn=%d   psy model=%d",
-					layer_names[info->lay-1], mode_names[info->mode],
-					info->mode_ext, *psy);
-	else mjpeg_debug("Layer=%s   mode=%s   extn=data dependant   psy model=%d",
-					 layer_names[info->lay-1], mode_names[info->mode], *psy);
-	mjpeg_debug("samp frq=%.1f kHz   total bitrate=%d kbps",
-				s_freq[info->sampling_frequency],
-				bitrate[info->lay-1][info->bitrate_index]);
-	mjpeg_debug("de-emph=%d   c/right=%d   orig=%d   errprot=%d",
-				info->emphasis, info->copyright, info->original,
-				info->error_protection);
-	mjpeg_debug("output file: '%s'", outPath);
+    mjpeg_debug("Encoding configuration:");
+    if(info->mode != MPG_MD_JOINT_STEREO)
+        mjpeg_debug("Layer=%s   mode=%s   extn=%d   psy model=%d",
+                    layer_names[info->lay-1], mode_names[info->mode],
+                    info->mode_ext, *psy);
+    else mjpeg_debug("Layer=%s   mode=%s   extn=data dependant   psy model=%d",
+                     layer_names[info->lay-1], mode_names[info->mode], *psy);
+    mjpeg_debug("samp frq=%.1f kHz   total bitrate=%d kbps",
+                s_freq[info->sampling_frequency],
+                bitrate[info->lay-1][info->bitrate_index]);
+    mjpeg_debug("de-emph=%d   c/right=%d   orig=%d   errprot=%d",
+                info->emphasis, info->copyright, info->original,
+                info->error_protection);
+    mjpeg_debug("output file: '%s'", outPath);
 }
  
 /*
@@ -534,8 +529,8 @@ static unsigned int crc;
     whole_SpF = (int) avg_slots_per_frame;
     frac_SpF  = avg_slots_per_frame - (double)whole_SpF;
     slot_lag  = -frac_SpF;
-	mjpeg_info("SpF=%d, frac SpF=%.3f, bitrate=%d kbps, sfreq=%.1f kHz",
-	   whole_SpF, frac_SpF,
+    mjpeg_info("SpF=%d, frac SpF=%.3f, bitrate=%d kbps, sfreq=%.1f kHz",
+       whole_SpF, frac_SpF,
            bitrate[info.lay-1][info.bitrate_index],
            s_freq[info.sampling_frequency]);
  
@@ -666,15 +661,15 @@ static unsigned int crc;
 
     close_bit_stream_w(&bs);
 
-	mjpeg_info("Num frames %ld Avg slots/frame = %.3f; b/smp = %.2f; br = %.3f kbps",
-	   frameNum,
+    mjpeg_info("Num frames %ld Avg slots/frame = %.3f; b/smp = %.2f; br = %.3f kbps",
+       frameNum,
            (FLOAT) sentBits / (frameNum * bitsPerSlot),
            (FLOAT) sentBits / (frameNum * samplesPerFrame),
            (FLOAT) sentBits / (frameNum * samplesPerFrame) *
                                s_freq[info.sampling_frequency]);
 
-	mjpeg_info("Encoding to layer %d with psychoacoustic model %d is finished", info.lay, model);
-	mjpeg_info("The MPEG encoded output file name is \"%s\"",
-			   encoded_file_name);
+    mjpeg_info("Encoding to layer %d with psychoacoustic model %d is finished", info.lay, model);
+    mjpeg_info("The MPEG encoded output file name is \"%s\"",
+               encoded_file_name);
     exit(0);
 }

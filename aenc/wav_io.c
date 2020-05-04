@@ -91,7 +91,7 @@ int wav_read_header(FILE *fd, int *rate, int *chans, int *bits,
 
    n = fread(data,1,12,fd);
    if(n!=12) {
-	   mjpeg_error("EOF in WAV header");
+      mjpeg_error("EOF in WAV header");
       return -1;
    }
 
@@ -148,7 +148,7 @@ int wav_read_header(FILE *fd, int *rate, int *chans, int *bits,
    if(*bytes+hdr_len != riff_len+8) {
       mjpeg_warn("File length according data tag: %u",*bytes+hdr_len);
       mjpeg_warn("File length according RIFF tag: %u",riff_len+8);
-	  mjpeg_warn("Inconsistency is inevitable if wav's are being piped");
+      mjpeg_warn("Inconsistency is inevitable if wav's are being piped");
    }
 
    return 0;

@@ -367,9 +367,9 @@ int *noise;
 #ifdef MI_OPTION
      /* Masahiro Iwadare's fix for infinite looping problem? */
      if(power[centre].type == TONE) 
-	 {
+     {
        if (power[centre+1].type == TONE) centre++; else centre--;
-	 }
+     }
 #else
      /* Mike Li's fix for infinite looping problem */
      if(power[centre].type == FALSE) centre++;

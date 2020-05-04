@@ -202,18 +202,18 @@ static void fht(FLOAT *fz)
           f0      = fi[0 ] + fi[k1];
           f3      = fi[k2] - fi[k3];
           f2      = fi[k2] + fi[k3];
-          fi[k2]  = f0	  - f2;
-          fi[0 ]  = f0	  + f2;
-          fi[k3]  = f1	  - f3;
-          fi[k1]  = f1	  + f3;
+          fi[k2]  = f0     - f2;
+          fi[0 ]  = f0     + f2;
+          fi[k3]  = f1     - f3;
+          fi[k1]  = f1     + f3;
           g1      = gi[0 ] - gi[k1];
           g0      = gi[0 ] + gi[k1];
           g3      = SQRT2  * gi[k3];
           g2      = SQRT2  * gi[k2];
-          gi[k2]  = g0	  - g2;
-          gi[0 ]  = g0	  + g2;
-          gi[k3]  = g1	  - g3;
-          gi[k1]  = g1	  + g3;
+          gi[k2]  = g0     - g2;
+          gi[0 ]  = g0     + g2;
+          gi[k3]  = g1     - g3;
+          gi[k1]  = g1     + g3;
           gi     += k4;
           fi     += k4;
         }

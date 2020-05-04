@@ -148,9 +148,9 @@ typedef struct {
     int         stereo;         /* 1 for mono, 2 for stereo */
     int         jsbound;        /* first band of joint stereo coding */
     int         sblimit;        /* total number of sub bands */
-    int         in_freq;	/* Freq. input in Hz */
-    int         down_freq;	/* Freq. to downsample input to for encoding
-								   in Hz */
+    int         in_freq;        /* Freq. input in Hz */
+    int         down_freq;      /* Freq. to downsample input to for encoding
+                                   in Hz */
 } frame_params;
 
 /* "bit_stream.h" Type Definitions */
@@ -180,8 +180,8 @@ extern const char  *mode_names[4];
 extern const char  *layer_names[3];
 extern double      s_freq[4];
 extern int         bitrate[3][15];
-extern double multiple[64];
-extern int	   verbose;
+extern double      multiple[64];
+extern int         verbose;
 
 /***********************************************************************
 *

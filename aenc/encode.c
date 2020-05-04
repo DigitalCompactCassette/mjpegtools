@@ -119,7 +119,7 @@ static void read_and_resample(void)
 
       n = fread(in_buff+freq_in*nbps,1,nbps,stdin);
       if(n!=nbps) {
-		  mjpeg_error_exit1("Error reading wave data");
+         mjpeg_error_exit1("Error reading wave data");
 
       }
    }
@@ -205,7 +205,7 @@ static int get_samples(short *abuff, int num, int stereo)
       else if(*pfred == 2)
       {
          big_endian = 0;
-		 mjpeg_info("System is little endian");
+         mjpeg_info("System is little endian");
       }
       else
       {
@@ -217,12 +217,12 @@ static int get_samples(short *abuff, int num, int stereo)
 
       in_buff = (unsigned char *) malloc((freq_in+1)*chans_in*audio_bits/8);
       if(!in_buff) 
-		  mjpeg_error_exit1("Malloc failed");
+         mjpeg_error_exit1("Malloc failed");
       if( audio_bits==8 || (audio_bits==16 && big_endian) )
       {
          buf1 = (short *)malloc((freq_in+1)*chans_in*sizeof(short));
          if(!buf1) 
-			 mjpeg_error_exit1("Malloc failed");
+            mjpeg_error_exit1("Malloc failed");
       }
       else
          buf1 = (short *)in_buff;
@@ -231,7 +231,7 @@ static int get_samples(short *abuff, int num, int stereo)
       {
          buf2 = (short *)malloc((freq_in+1)*chans_out*sizeof(short));
          if(!buf2) 
-			 mjpeg_error("Malloc failed");
+            mjpeg_error("Malloc failed");
       }
       else
          buf2 = buf1;
@@ -240,7 +240,7 @@ static int get_samples(short *abuff, int num, int stereo)
       {
          out_buff = (short *)malloc(freq_out*chans_out*sizeof(short));
          if(!out_buff)
-			 mjpeg_error("Malloc failed");
+            mjpeg_error("Malloc failed");
       }
       else
          out_buff = buf2;
@@ -261,7 +261,7 @@ static int get_samples(short *abuff, int num, int stereo)
       }
       n = num;
       if(buff_pos+n>num_out) 
-		  n = num_out-buff_pos;
+         n = num_out-buff_pos;
       memcpy(abuff,out_buff+buff_pos,n*sizeof(short));
       abuff += n;
       buff_pos += n;
@@ -1345,7 +1345,7 @@ frame_params *fr_ps;
              else
                d = sb_samples[k][s][j][i] / multiple[scalar[k][s][i]];
              if (mod(d) > 1.0)
-				 mjpeg_info("Not scaled properly %d %d %d %d",k,s,j,i);
+               mjpeg_info("Not scaled properly %d %d %d %d",k,s,j,i);
              qnt = (*alloc)[i][bit_alloc[k][i]].quant;
              d = d * a[qnt] + b[qnt];
              /* extract MSB N-1 bits from the floating point sample */

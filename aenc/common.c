@@ -65,8 +65,8 @@
  *                              position of sound data in file.
  * 3/31/93 Jens Spille          changed IFF_* string compares to use
  *                              strcmp()
- * 5/30/93 Masahiro Iwadare	?? the previous modification does not
- *				  work. recovered to the original. ??
+ * 5/30/93 Masahiro Iwadare     ?? the previous modification does not
+ *                              work. recovered to the original. ??
  * 8/27/93 Seymour Shlien,      Fixes in Unix and MSDOS ports,
  *         Daniel Lauzon,
  *         Bill Truerniet
@@ -81,7 +81,7 @@
 
 #include        <stdlib.h>
 #include        <string.h>
-#include	<ctype.h>
+#include        <ctype.h>
 #include        "common.h"
 
 /*
@@ -158,7 +158,7 @@ static int jsb_table[3][4] =  { { 4, 8, 12, 16 }, { 4, 8, 12, 16},
                                 { 0, 4, 8, 16} };  /* lay+m_e -> jsbound */
 
     if(lay<1 || lay >3 || m_ext<0 || m_ext>3) {
-		mjpeg_error_exit1("js_bound bad layer/modext (%d/%d)", lay, m_ext);
+        mjpeg_error_exit1("js_bound bad layer/modext (%d/%d)", lay, m_ext);
     }
     return(jsb_table[lay-1][m_ext]);
 }
@@ -483,21 +483,21 @@ Bit_stream_struc *bs;   /* bit stream structure */
 char *bs_filenam;       /* name of the bit stream file */
 int size;               /* size of the buffer */
 {
-	if ( strcmp(bs_filenam, "-" ) == 0 )
-	{
-		bs->pt = stdout;
-	}
-	else if ((bs->pt = fopen(bs_filenam, "wb")) == NULL) {
-		fprintf(stderr,"Could not create \"%s\".\n", bs_filenam);
-		exit(1);
-	}
-	alloc_buffer(bs, size);
-	bs->buf_byte_idx = size-1;
-	bs->buf_bit_idx=8;
-	bs->totbit=0;
-	bs->mode = WRITE_MODE;
-	bs->eob = FALSE;
-	bs->eobs = FALSE;
+    if ( strcmp(bs_filenam, "-" ) == 0 )
+    {
+        bs->pt = stdout;
+    }
+    else if ((bs->pt = fopen(bs_filenam, "wb")) == NULL) {
+        fprintf(stderr,"Could not create \"%s\".\n", bs_filenam);
+        exit(1);
+    }
+    alloc_buffer(bs, size);
+    bs->buf_byte_idx = size-1;
+    bs->buf_bit_idx=8;
+    bs->totbit=0;
+    bs->mode = WRITE_MODE;
+    bs->eob = FALSE;
+    bs->eobs = FALSE;
 }
 
 /* open the device to read the bit stream from it */
