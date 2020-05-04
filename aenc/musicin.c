@@ -114,7 +114,10 @@ musicin.c
 #endif
  
 #include <stdlib.h>
+#include <io.h>
+#include <fcntl.h>
 #include <string.h>
+#include <getopt.h>
 #include "common.h"
 #include "encoder.h"
 #include "wav_io.h"
@@ -511,6 +514,10 @@ static unsigned int crc;
     programName = argv[0];
     get_params(argc, argv, &fr_ps, &model, &num_samples, &encoded_file_name);
     print_config(&fr_ps, &model, &num_samples, encoded_file_name);
+
+    // Only needed for Windows: Reopen stdin in binary mode so it doesn't try
+    // to convert \r\n to \n
+    setmode(fileno(stdin), O_BINARY);
 
     hdr_to_frps(&fr_ps);
     stereo = fr_ps.stereo;

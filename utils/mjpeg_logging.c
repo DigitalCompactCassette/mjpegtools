@@ -222,9 +222,9 @@ mjpeg_error_exit1(const char format[], ...)
 log_level_t
 mjpeg_loglev_t(const char *level)
 {
-    if (strcasecmp("debug", level) == 0) return(LOG_DEBUG);
-    else if (strcasecmp("info", level) == 0) return(LOG_INFO);
-    else if (strcasecmp("warn", level) == 0) return(LOG_WARN);
-    else if (strcasecmp("error", level) == 0) return(LOG_ERROR);
+    if (stricmp("debug", level) == 0) return(LOG_DEBUG);
+    else if (stricmp("info", level) == 0) return(LOG_INFO);
+    else if (stricmp("warn", level) == 0) return(LOG_WARN);
+    else if (stricmp("error", level) == 0) return(LOG_ERROR);
     return(0);
 }

@@ -79,10 +79,12 @@ encode.c
  *                              if( ad > ...) to if(ad >= ...)        *
  **********************************************************************/
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include "common.h"
 #include "encoder.h"
 

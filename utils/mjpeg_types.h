@@ -23,6 +23,6 @@
 
 #include <sys/types.h> /* FreeBSD, others - ssize_t */
 #include <stdint.h>
-#include <inttypes.h>
+//#include <inttypes.h>
 
 #endif /* __MJPEG_TYPES_H__ */

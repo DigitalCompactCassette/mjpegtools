@@ -54,7 +54,7 @@
 #include        <stdio.h>
 #include        <string.h>
 #include        <math.h>
-#include        <unistd.h>
+//#include        <unistd.h>
 #include        <stdlib.h>
 #include "mjpeg_logging.h"
 

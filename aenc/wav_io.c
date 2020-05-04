@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 #include <fcntl.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <string.h>
 #include "mjpeg_logging.h"
 #include "wav_io.h"
@@ -68,7 +68,7 @@ static int32_t find_tag(FILE *fd, const char *tag)
       hdr_len += 8;
 
       m = getulong(data+4);
-      if(!strncasecmp((char*)data,tag,4)) return m;
+      if(!strnicmp((char*)data,tag,4)) return m;
 
       for(n=0;n<m;n++)
          if(fgetc(fd)==EOF) goto error;
@@ -95,14 +95,14 @@ int wav_read_header(FILE *fd, int *rate, int *chans, int *bits,
       return -1;
    }
 
-   if(strncasecmp((char*)data,"RIFF",4)) {
+   if(strnicmp((char*)data,"RIFF",4)) {
       mjpeg_error("Input not a WAV file - starts not with \"RIFF\"");
       return -1;
    }
 
    riff_len = getulong(data+4);
 
-   if(strncasecmp((char*)data+8,"WAVE",4)) {
+   if(strnicmp((char*)data+8,"WAVE",4)) {
       mjpeg_error("Input not a WAV file - has no \"WAVE\" tag");
       return -1;
    }
