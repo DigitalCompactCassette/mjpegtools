@@ -34,7 +34,7 @@
 #endif
 
 #include <math.h>
-#define FLOAT float
+#include "common.h"
 #define         SQRT2                   1.4142135623730951454746218587388284504414
 
 void fft(FLOAT *x_real, FLOAT *x_imag, FLOAT *energy, FLOAT *phi, int N);

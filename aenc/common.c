@@ -134,7 +134,7 @@ frame_params *fr_ps;
         bsp = fr_ps->header->bitrate_index;
         br_per_ch = bitrate[lay][bsp] / fr_ps->stereo;
         ws = fr_ps->header->sampling_frequency;
-        sfrq = s_freq[ws];
+        sfrq = (int)s_freq[ws];
         /* decision rules refer to per-channel bitrates (kbits/sec/chan) */
         if ((sfrq == 48 && br_per_ch >= 56) ||
             (br_per_ch >= 56 && br_per_ch <= 80)) table = 0;

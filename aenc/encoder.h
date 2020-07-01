@@ -144,10 +144,10 @@ extern void   print_config(frame_params*, int*, unsigned long*, char *);
 
 extern unsigned long    read_samples(FILE*, short[2304], unsigned long,
                            unsigned long);
-extern unsigned long    get_audio(FILE*, short[2][1152], unsigned long,
+extern unsigned long    get_audio(FILE*, int32_t[2][1152], unsigned long,
                            int, int);
 extern void   read_ana_window(double[HAN_SIZE]);
-extern void   window_subband(short**, double[HAN_SIZE], int);
+extern void   window_subband(int32_t**, double[HAN_SIZE], int);
 extern void   create_ana_filter(double[SBLIMIT][64]);
 extern void   filter_subband(double[HAN_SIZE], double[SBLIMIT]);
 extern void   encode_info(frame_params*, Bit_stream_struc*);
@@ -221,7 +221,7 @@ extern void        threshold(mask[HAN_SIZE], g_thres*, int*, int*, int);
 extern void        II_minimum_mask(g_thres*, double[SBLIMIT], int);
 extern void        II_smr(double[SBLIMIT], double[SBLIMIT], double[SBLIMIT],
                            int);
-extern void        II_Psycho_One(short[2][1152], double[2][SBLIMIT],
+extern void        II_Psycho_One(int32_t[2][1152], double[2][SBLIMIT],
                            double[2][SBLIMIT], frame_params*);
 extern void        I_f_f_t(double[FFT_SIZE/2], mask[HAN_SIZE/2]);
 extern void        I_hann_win(double[FFT_SIZE/2]);
@@ -229,12 +229,12 @@ extern void        I_pick_max(mask[HAN_SIZE/2], double[SBLIMIT]);
 extern void        I_tonal_label(mask[HAN_SIZE/2], int*);
 extern void        I_minimum_mask(g_thres*, double[SBLIMIT]);
 extern void        I_smr(double[SBLIMIT], double[SBLIMIT], double[SBLIMIT]);
-extern void        I_Psycho_One(short[2][1152], double[2][SBLIMIT],
+extern void        I_Psycho_One(int32_t[2][1152], double[2][SBLIMIT],
                            double[2][SBLIMIT], frame_params*);
 
 /* The following functions are in the file "psy.c" */
 
-extern void        psycho_anal(short int*, short int[1056], int, int,
+extern void        psycho_anal(int32_t*, int32_t[1056], int, unsigned,
                            FLOAT[32], double);
 
 void fft(FLOAT *x_real, FLOAT *x_imag, FLOAT *energy, FLOAT *phi, int N);

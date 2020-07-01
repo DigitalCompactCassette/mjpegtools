@@ -55,7 +55,7 @@ static int32_t find_tag(FILE *fd, const char *tag)
 {
    uint8_t data[8];
    uint32_t m;
-   int n;
+   unsigned n;
 
    /* scan input stream for specified tag and return its length */
    /* returns -1 in case of error */

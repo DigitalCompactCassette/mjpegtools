@@ -143,7 +143,7 @@ static void Usage(char *str)
 {
   printf("Usage: %s [params] < input.wav\n",str);
   printf("   where possible params are:\n");
-  printf( "  -v num             Level of verbosity. 0 = quiet, 1 = normal 2 = verbose/debug\n");
+  printf("   -v num             Level of verbosity. 0 = quiet, 1 = normal 2 = verbose/debug\n");
   printf("   -b num             Bitrate in KBit/sec (default: 224 KBit/s)\n");
   printf("   -l num             Layer number 1 or 2 (default: 2)\n");
   printf("   -o name            Outputfile name (REQUIRED)\n");
@@ -298,8 +298,8 @@ char            **encoded_file_name;
                freq_in, chans_in, audio_bits);
     }
 
-    if(audio_bits!=8 && audio_bits!=16)
-       mjpeg_error_exit1("audio samples must have 8 or 16 bits");
+    if(audio_bits!=8 && audio_bits!=16 && audio_bits != 24 && audio_bits != 32)
+       mjpeg_error_exit1("audio samples must have 8, 16, 24 or 32 bits");
 
     if(chans_in!=1 && chans_in!=2)
        mjpeg_error_exit1("can only handle files with 1 or 2 channels");
@@ -464,13 +464,13 @@ typedef unsigned int SUB[2][3][SCALE_BLOCK][SBLIMIT];
     frame_params fr_ps;
     layer info;
     char *encoded_file_name;
-    short **win_buf;
-static short buffer[2][1152];
+    int32_t **win_buf32;
+static int32_t buf32[2][1152];
 static unsigned int bit_alloc[2][SBLIMIT], scfsi[2][SBLIMIT];
 static unsigned int scalar[2][3][SBLIMIT], j_scale[3][SBLIMIT];
 static double ltmin[2][SBLIMIT], lgmin[2][SBLIMIT], max_sc[2][SBLIMIT];
     FLOAT snr32[32];
-    short sam[2][1056];
+    int32_t sam32[2][1056];
     int whole_SpF, extra_slot = 0;
     double avg_slots_per_frame, frac_SpF, slot_lag;
     int model, stereo, error_protection;
@@ -487,10 +487,10 @@ static unsigned int crc;
     j_sample = (JSBS *) mem_alloc(sizeof(JSBS), "j_sample");
     win_que = (IN *) mem_alloc(sizeof(IN), "Win_que");
     subband = (SUB *) mem_alloc(sizeof(SUB),"subband");
-    win_buf = (short **) mem_alloc(sizeof(short *)*2, "win_buf");
+    win_buf32 = (int32_t **) mem_alloc(sizeof(int32_t *)*2, "win_buf");
  
     /* clear buffers */
-    memset((char *) buffer, 0, sizeof(buffer));
+    memset((char *) buf32, 0, sizeof(buf32));
     memset((char *) bit_alloc, 0, sizeof(bit_alloc));
     memset((char *) scalar, 0, sizeof(scalar));
     memset((char *) j_scale, 0, sizeof(j_scale));
@@ -499,7 +499,7 @@ static unsigned int crc;
     memset((char *) lgmin, 0, sizeof(lgmin));
     memset((char *) max_sc, 0, sizeof(max_sc));
     memset((char *) snr32, 0, sizeof(snr32));
-    memset((char *) sam, 0, sizeof(sam));
+    memset((char *) sam32, 0, sizeof(sam32));
  
     fr_ps.header = &info;
     fr_ps.tab_num = -1;             /* no table loaded */
@@ -538,10 +538,10 @@ static unsigned int crc;
        mjpeg_info("Fractional number of slots, padding required");
     else info.padding = 0;
  
-    while (get_audio(musicin, buffer, num_samples, stereo, info.lay) != 0) {
+    while (get_audio(musicin, buf32, num_samples, stereo, info.lay) != 0) {
        frameNum++;
-       win_buf[0] = &buffer[0][0];
-       win_buf[1] = &buffer[1][0];
+       win_buf32[0] = &buf32[0][0];
+       win_buf32[1] = &buf32[1][0];
        if (frac_SpF != 0) {
           if (slot_lag > (frac_SpF-1.0) ) {
              slot_lag -= frac_SpF;
@@ -563,7 +563,7 @@ static unsigned int crc;
           case 1 :
              for (j=0;j<SCALE_BLOCK;j++)
              for (k=0;k<stereo;k++) {
-                window_subband(&win_buf[k], &(*win_que)[k][0], k);
+                window_subband(&win_buf32[k], &(*win_que)[k][0], k);
                 filter_subband(&(*win_que)[k][0], &(*sb_sample)[k][0][j][0]);
              }
 
@@ -575,10 +575,10 @@ static unsigned int crc;
  
              put_scale(scalar, &fr_ps, max_sc);
  
-             if (model == 1) I_Psycho_One(buffer, max_sc, ltmin, &fr_ps);
+             if (model == 1) I_Psycho_One(buf32, max_sc, ltmin, &fr_ps);
              else {
                 for (k=0;k<stereo;k++) {
-                   psycho_anal(&buffer[k][0],&sam[k][0], k, info.lay, snr32,
+                   psycho_anal(&buf32[k][0], &sam32[k][0], k, info.lay, snr32,
                                (FLOAT)s_freq[info.sampling_frequency]*1000);
                    for (i=0;i<SBLIMIT;i++) ltmin[k][i] = (double) snr32[i];
                 }
@@ -605,7 +605,7 @@ static unsigned int crc;
           case 2 :
              for (i=0;i<3;i++) for (j=0;j<SCALE_BLOCK;j++)
                 for (k=0;k<stereo;k++) {
-                   window_subband(&win_buf[k], &(*win_que)[k][0], k);
+                   window_subband(&win_buf32[k], &(*win_que)[k][0], k);
                    filter_subband(&(*win_que)[k][0], &(*sb_sample)[k][i][j][0]);
                 }
  
@@ -617,10 +617,10 @@ static unsigned int crc;
                 }       /* this way we calculate more mono than we need */
                         /* but it is cheap */
  
-                if (model == 1) II_Psycho_One(buffer, max_sc, ltmin, &fr_ps);
+                if (model == 1) II_Psycho_One(buf32, max_sc, ltmin, &fr_ps);
                 else {
                    for (k=0;k<stereo;k++) {
-                      psycho_anal(&buffer[k][0],&sam[k][0], k, 
+                      psycho_anal(&buf32[k][0],&sam32[k][0], k, 
                                  info.lay, snr32,
                                  (FLOAT)s_freq[info.sampling_frequency]*1000);
                       for (i=0;i<SBLIMIT;i++) ltmin[k][i] = (double) snr32[i];

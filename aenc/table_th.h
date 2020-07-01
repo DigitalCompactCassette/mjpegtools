@@ -3,8 +3,8 @@ static int th_len[6] = { 107, 103, 103, 131, 127, 133 };
 static struct {
    int count;
    int line;
-   float bark;
-   float hear;
+   double bark;
+   double hear;
 } th_tab[6][132] = {
 {
 {1,1,0.850,25.87},

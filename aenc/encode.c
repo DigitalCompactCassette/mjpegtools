@@ -101,7 +101,7 @@ static int num_out = -1;
 static int buff_pos;
 static int big_endian;
 static unsigned char *in_buff;
-static short *buf1, *buf2, *out_buff;
+static int32_t *buf_1, *buf_2, *out_buf;
 static double freq_quot;
 
 static void read_and_resample(void)
@@ -129,32 +129,111 @@ static void read_and_resample(void)
 
    memcpy(in_buff,in_buff+freq_in*nbps,nbps);
    n = fread(in_buff+nbps,1,freq_in*nbps,stdin);
-   num_in = n/nbps + 1;
+   num_in = n/nbps + 1; // need one extra sample for resampling
 
-   /* Step 1: Make little endian shorts from input */
+   /* Step 1: Make host-endian signed longs from input */
 
    if(audio_bits==8)
    {
       for(n=0;n<num_in*chans_in;n++)
-         buf1[n] = (in_buff[n]-128)<<8;
+         buf_1[n] = (in_buff[n]-128)<<24; // Convert unsigned byte to signed long
    }
-   else if(big_endian && !raw_in)
+   else if(audio_bits==16)
    {
-      swab(in_buff,buf1,num_in*nbps);
+     if (big_endian && !raw_in)
+     {
+       // WAV files are little endian so on a big endian machine we need to
+       // read the samples one byte at a time.
+       for (n = 0; n < num_in * chans_in; n++)
+       {
+         buf_1[n] = ((int32_t)(in_buff[2 * n]) << 16) + ((int32_t)(in_buff[2 * n + 1]) << 24);
+       }
+     }
+     else
+     {
+       // We're on a little endian machine or we're in raw mode.
+       // Assume that incoming data endiannes matches the machine
+       // endianness, and handle one sample at a time.
+       for (n = 0; n < num_in * chans_in; n++)
+       {
+         int16_t *p = (int16_t*)&in_buff[2 * n];
+
+         buf_1[n] = (int32_t)(*p) << 16;
+       }
+     }
+   }
+   else if (audio_bits==24)
+   {
+     if (big_endian)
+     {
+       if (!raw_in)
+       {
+         // WAV files are little endian so on a big endian machine we need to
+         // read the samples one byte at a time.
+         for (n = 0; n < num_in * chans_in; n++)
+         {
+           buf_1[n] = ((int32_t)(in_buff[3 * n]) << 8) + ((int32_t)(in_buff[3 * n + 1]) << 16) + ((int32_t)(in_buff[3 * n + 2]) << 24);
+         }
+       }
+       else
+       {
+         // We're on a big-endian machine and in raw mode.
+         // Read the samples in big endian mode
+         for (n = 0; n < num_in * chans_in; n++)
+         {
+           buf_1[n] = ((int32_t)(in_buff[3 * n]) << 24) + ((int32_t)(in_buff[3 * n + 1]) << 16) + ((int32_t)(in_buff[3 * n + 2]) << 8);
+         }
+       }
+     }
+     else
+     {
+       // We're on a little endian machine.
+       // Copy one sample at a time.
+       for (n = 0; n < num_in * chans_in; n++)
+       {
+         int32_t ss = 0;
+
+         memcpy(&ss, &in_buff[3 * n], 3);
+
+         buf_1[n] = ss << 8;
+       }
+     }
+   }
+   else if (audio_bits==32)
+   {
+     if (big_endian && !raw_in)
+     {
+       // WAV files are little endian so on a big endian machine we need to
+       // read the samples one byte at a time.
+       for (n = 0; n < num_in * chans_in; n++)
+       {
+         buf_1[n] = ((int32_t)(in_buff[4 * n])) + ((int32_t)(in_buff[4 * n + 1]) << 8) + ((int32_t)(in_buff[4 * n + 2]) << 16) + ((int32_t)(in_buff[4 * n + 3]) << 24);
+       }
+     }
+     else
+     {
+       // Nothing to do: buf_1 == in_buf
+     }
    }
 
    /* Step 2: Make mono from stereo or vice versa if wanted */
 
+   // Note: If no channel conversion is necessary, buf_2 == buf_1
+
    if(chans_in==2 && chans_out==1)
    {
       for(n=0;n<num_in;n++)
-         buf2[n] = (buf1[2*n]+buf1[2*n+1]) >> 1;
+      {
+        // Convert samples to 64 bit integers to prevent overflow
+        int64_t ss = (int64_t)buf_1[2 * n] + (int64_t)buf_1[2 * n + 1];
+        buf_2[n] = (int32_t)(ss >> 1);
+      }
    }
 
    if(chans_in==1 && chans_out==2)
    {
       for(n=0;n<num_in;n++)
-         buf2[2*n] = buf2[2*n+1] = buf1[n];
+         buf_2[2*n] = buf_2[2*n+1] = buf_1[n];
    }
 
    /* Step 3: Change sampling frequency if necessary */
@@ -165,17 +244,17 @@ static void read_and_resample(void)
       for(n=0;n<num_out;n++)
       {
          s = n*freq_quot;
-         is = s;
+         is = (int)s;
          fs = s - is;
 
          if(chans_out==2)
          {
-            out_buff[2*n  ] = (1.0-fs)*buf2[2*is  ] + fs*buf2[2*is+2];
-            out_buff[2*n+1] = (1.0-fs)*buf2[2*is+1] + fs*buf2[2*is+3];
+            out_buf[2*n  ] = (int32_t)((1.0-fs)*buf_2[2*is  ]) + (int32_t)(fs*buf_2[2*is+2]);
+            out_buf[2*n+1] = (int32_t)((1.0-fs)*buf_2[2*is+1]) + (int32_t)(fs*buf_2[2*is+3]);
          }
          else
          {
-            out_buff[n] = (1.0-fs)*buf2[is] + fs*buf2[is+1];
+            out_buf[n] = (int32_t)((1.0-fs)*buf_2[is]) + (int32_t)(fs*buf_2[is+1]);
          }
       }
    }
@@ -185,7 +264,7 @@ static void read_and_resample(void)
    mjpeg_debug("%4ld seconds done",nseconds);
 }
 
-static int get_samples(short *abuff, int num, int stereo)
+static int get_samples(int32_t *abuff, int num, int stereo)
 {
    int n;
 
@@ -218,32 +297,32 @@ static int get_samples(short *abuff, int num, int stereo)
       in_buff = (unsigned char *) malloc((freq_in+1)*chans_in*audio_bits/8);
       if(!in_buff) 
          mjpeg_error_exit1("Malloc failed");
-      if( audio_bits==8 || (audio_bits==16 && big_endian) )
+      if( audio_bits!=32 || (big_endian && !raw_in))
       {
-         buf1 = (short *)malloc((freq_in+1)*chans_in*sizeof(short));
-         if(!buf1) 
+         buf_1 = (int32_t *)malloc((freq_in+1)*chans_in*sizeof(int32_t));
+         if(!buf_1) 
             mjpeg_error_exit1("Malloc failed");
       }
       else
-         buf1 = (short *)in_buff;
+         buf_1 = (int32_t *)in_buff;
 
       if(chans_in!=chans_out)
       {
-         buf2 = (short *)malloc((freq_in+1)*chans_out*sizeof(short));
-         if(!buf2) 
+         buf_2 = (int32_t *)malloc((freq_in+1)*chans_out*sizeof(int32_t));
+         if(!buf_2) 
             mjpeg_error("Malloc failed");
       }
       else
-         buf2 = buf1;
+         buf_2 = buf_1;
 
       if(freq_in!=freq_out)
       {
-         out_buff = (short *)malloc(freq_out*chans_out*sizeof(short));
-         if(!out_buff)
+         out_buf = (int32_t *)malloc(freq_out*chans_out*sizeof(int32_t));
+         if(!out_buf)
             mjpeg_error("Malloc failed");
       }
       else
-         out_buff = buf2;
+         out_buf = buf_2;
 
       /* Read first buffer with samples */
 
@@ -262,7 +341,7 @@ static int get_samples(short *abuff, int num, int stereo)
       n = num;
       if(buff_pos+n>num_out) 
          n = num_out-buff_pos;
-      memcpy(abuff,out_buff+buff_pos,n*sizeof(short));
+      memcpy(abuff,out_buf+buff_pos,n*sizeof(int32_t));
       abuff += n;
       buff_pos += n;
       num -= n;
@@ -306,57 +385,61 @@ static int get_samples(short *abuff, int num, int stereo)
  * #buffer[1][]#
  *
  ************************************************************************/
- 
-unsigned long get_audio(musicin, buffer, num_samples, stereo, lay)
-FILE *musicin;
-short buffer[2][1152];
-unsigned long num_samples;
-int stereo, lay;
+
+// TODO: Instead of shifting the data through the buffer, we should just
+// TODO: let the incoming data overwrite the oldest data and use the buffer
+// TODO: in a circular fashion.
+unsigned long get_audio(
+FILE *musicin,
+int32_t buf32[2][1152],
+unsigned long num_samples,
+int stereo,
+int lay)
 {
    int j, res;
-   short insamp[2304];
+   int32_t insamp32[2304];
  
    if (lay == 1){
       if(stereo == 2){ /* layer 1, stereo */
-         res = get_samples(insamp, 384*2, stereo);
+         res = get_samples(insamp32, 384*2, stereo);
          for(j=0;j<448;j++) {
             if(j<64) {
-               buffer[0][j] = buffer[0][j+384];
-               buffer[1][j] = buffer[1][j+384];
+               buf32[0][j] = buf32[0][j+384];
+               buf32[1][j] = buf32[1][j+384];
             }
             else {
-               buffer[0][j] = insamp[2*j-128];
-               buffer[1][j] = insamp[2*j-127];
+               buf32[0][j] = insamp32[2*j-128];
+               buf32[1][j] = insamp32[2*j-127];
             }
          }
       }
       else { /* layer 1, mono */
-         res = get_samples(insamp, 384, stereo);
+         res = get_samples(insamp32, 384, stereo);
          for(j=0;j<448;j++){
             if(j<64) {
-               buffer[0][j] = buffer[0][j+384];
-               buffer[1][j] = 0;
+               buf32[0][j] = buf32[0][j+384];
+               buf32[1][j] = 0;
             }
             else {
-               buffer[0][j] = insamp[j-64];
-               buffer[1][j] = 0;
+               buf32[0][j] = insamp32[j-64];
+               buf32[1][j] = 0;
             }
          }
       }
    }
    else {
       if(stereo == 2){ /* layer 2 (or 3), stereo */
-         res = get_samples(insamp, 1152*2, stereo);
+         res = get_samples(insamp32, 1152*2, stereo);
          for(j=0;j<1152;j++) {
-            buffer[0][j] = insamp[2*j];
-            buffer[1][j] = insamp[2*j+1];
+            buf32[0][j] = insamp32[2*j];
+            buf32[1][j] = insamp32[2*j+1];
          }
       }
       else { /* layer 2 (or 3), mono */
-         res = get_samples(insamp, 1152, stereo);
+         res = get_samples(insamp32, 1152, stereo);
          for(j=0;j<1152;j++){
-            buffer[0][j] = insamp[j];
-            buffer[1][j] = 0;
+            buf32[0][j] = insamp32[j];
+            buf32[1][j] = 0;
          }
       }
    }
@@ -377,10 +460,10 @@ int stereo, lay;
  *
  ************************************************************************/
  
-void window_subband(buffer, z, k)
-short **buffer;
-double z[HAN_SIZE];
-int k;
+void window_subband(
+int32_t **buf32,
+double z[HAN_SIZE],
+int k)
 {
     typedef double XX[2][HAN_SIZE];
     static XX *x;
@@ -399,7 +482,7 @@ int k;
     }
 
     /* replace 32 oldest samples with 32 new samples */
-    for (i=0;i<32;i++) (*x)[k][31-i+off[k]] = (double) *(*buffer)++/SCALE;
+    for (i=0;i<32;i++) (*x)[k][31-i+off[k]] = ((double) *(*buf32)++)/SCALE;
     /* shift samples into proper window positions */
     for (i=0;i<HAN_SIZE;i++) z[i] = (*x)[k][(i+off[k])&(HAN_SIZE-1)] * c[i];
     off[k] += 480;              /*offset is modulo (HAN_SIZE-1)*/
@@ -635,7 +718,8 @@ unsigned int scalar[2][3][SBLIMIT];
 frame_params *fr_ps;
 double max_sc[2][SBLIMIT];
 {
-  int i,j,k,max;
+  int i,j,k;
+  unsigned int max;
   int stereo  = fr_ps->stereo;
   int sblimit = fr_ps->sblimit;
  
@@ -1353,7 +1437,7 @@ frame_params *fr_ps;
              else { sig = 0; d += 1.0; }
              n = 0;
              stps = (*alloc)[i][bit_alloc[k][i]].steps;
-             while ((1L<<n) < stps) n++;
+             while ((1LU<<n) < stps) n++;
              n--;
              sbband[k][s][j][i] = (unsigned int) (d * (double) (1L<<n));
              /* tag the inverted sign bit to sbband at position N */
@@ -1451,9 +1535,9 @@ Bit_stream_struc *bs;
 {
    unsigned int temp;
    unsigned int i,j,k,s,x,y;
-   int stereo  = fr_ps->stereo;
-   int sblimit = fr_ps->sblimit;
-   int jsbound = fr_ps->jsbound;
+   unsigned int stereo  = fr_ps->stereo;
+   unsigned int sblimit = fr_ps->sblimit;
+   unsigned int jsbound = fr_ps->jsbound;
    al_table *alloc = fr_ps->alloc;
  
    for (s=0;s<3;s++)

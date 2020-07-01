@@ -58,7 +58,7 @@
 #include        <stdlib.h>
 #include "mjpeg_logging.h"
 
-#define         FLOAT                   float
+#define         FLOAT                   double
 #define         FALSE                   0
 #define         TRUE                    1
 
@@ -78,7 +78,7 @@
 #define         HAN_SIZE                512
 #define         SCALE_BLOCK             12
 #define         SCALE_RANGE             64
-#define         SCALE                   32768
+#define         SCALE                   2147483648.0
 #define         CRC16_POLYNOMIAL        0x8005
 
 /* MPEG Header Definitions - Mode Values */
@@ -145,9 +145,9 @@ typedef struct {
     int         actual_mode;    /* when writing IS, may forget if 0 chs */
     al_table    *alloc;         /* bit allocation table read in */
     int         tab_num;        /* number of table as loaded */
-    int         stereo;         /* 1 for mono, 2 for stereo */
-    int         jsbound;        /* first band of joint stereo coding */
-    int         sblimit;        /* total number of sub bands */
+    unsigned    stereo;         /* 1 for mono, 2 for stereo */
+    unsigned    jsbound;        /* first band of joint stereo coding */
+    unsigned    sblimit;        /* total number of sub bands */
     int         in_freq;        /* Freq. input in Hz */
     int         down_freq;      /* Freq. to downsample input to for encoding
                                    in Hz */

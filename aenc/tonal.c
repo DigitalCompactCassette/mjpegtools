@@ -559,10 +559,11 @@ int sblimit;
  * complete the psychoacoustic analysis.
 */
 
-void II_Psycho_One(buffer, scale, ltmin, fr_ps)
-short buffer[2][1152];
-double scale[2][SBLIMIT], ltmin[2][SBLIMIT];
-frame_params *fr_ps;
+void II_Psycho_One(
+int32_t buf32[2][1152],
+double scale[2][SBLIMIT],
+double ltmin[2][SBLIMIT],
+frame_params *fr_ps)
 {
  layer *info = fr_ps->header;
  int   stereo = fr_ps->stereo;
@@ -589,7 +590,7 @@ frame_params *fr_ps;
  }
 
  for(k=0;k<stereo;k++){  /* check pcm input for 3 blocks of 384 samples */
-    for(i=0;i<1152;i++) fft_buf[k][(i+off[k])%1408]= (double)buffer[k][i]/SCALE;
+    for(i=0;i<1152;i++) fft_buf[k][(i+off[k])%1408]= (double)buf32[k][i]/SCALE;
     for(i=0;i<FFT_SIZE;i++) sample[i] = fft_buf[k][(i+1216+off[k])%1408];
     off[k] += 1152;
     off[k] %= 1408;
@@ -881,10 +882,11 @@ double spike[SBLIMIT], scale[SBLIMIT], ltmin[SBLIMIT];
  * complete the psychoacoustic analysis.
 */
 
-void I_Psycho_One(buffer, scale, ltmin, fr_ps)
-short buffer[2][1152];
-double scale[2][SBLIMIT], ltmin[2][SBLIMIT];
-frame_params *fr_ps;
+void I_Psycho_One(
+int32_t buf32[2][1152],
+double scale[2][SBLIMIT],
+double ltmin[2][SBLIMIT],
+frame_params *fr_ps)
 {
  int stereo = fr_ps->stereo;
  the_layer info = fr_ps->header;
@@ -910,7 +912,7 @@ frame_params *fr_ps;
  }
  for(k=0;k<stereo;k++){    /* check PCM input for a block of */
     for(i=0;i<384;i++)     /* 384 samples for a 512-pt. FFT  */
-       fft_buf[k][(i+off[k])%640]= (double) buffer[k][i]/SCALE;
+       fft_buf[k][(i+off[k])%640]= (double) buf32[k][i]/SCALE;
     for(i=0;i<FFT_SIZE/2;i++)
        sample[i] = fft_buf[k][(i+448+off[k])%640];
     off[k] += 384;

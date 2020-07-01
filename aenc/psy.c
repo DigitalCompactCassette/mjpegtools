@@ -32,12 +32,13 @@
 #include "common.h"
 #include "encoder.h"
 
-void psycho_anal(buffer,savebuf,chn,lay,snr32,sfreq)
-short int *buffer;
-short int savebuf[1056];
-int   chn, lay;
-FLOAT snr32[32];
-double sfreq;        /* to match prototype : float args are always double */
+void psycho_anal(
+int32_t *buf32,
+int32_t savebuf[1056],
+int   chn,
+unsigned lay,
+FLOAT snr32[32],
+double sfreq)        /* to match prototype : float args are always double */
 {
  unsigned int   i, j, k;
  FLOAT          r_prime, phi_prime;
@@ -50,7 +51,8 @@ double sfreq;        /* to match prototype : float args are always double */
 /* the second index is the "age" of the data.                             */
 
  static int     new = 0, old = 1, oldest = 0;
- static int     init = 0, flush, sync_flush, syncsize, sfreq_idx;
+ static int     init = 0, flush, sfreq_idx;
+ static unsigned sync_flush, syncsize;
 
 /* The following static variables are constants.                           */
 
@@ -128,7 +130,7 @@ double sfreq;        /* to match prototype : float args are always double */
      r = (F2HBLK *) mem_alloc(sizeof(F22HBLK), "r");
      phi_sav = (F2HBLK *) mem_alloc(sizeof(F22HBLK), "phi_sav");
 
-     i = sfreq + 0.5;
+     i = (unsigned)(sfreq + 0.5);
      switch(i) 
      {
      case 32000: 
@@ -148,7 +150,7 @@ double sfreq;        /* to match prototype : float args are always double */
         sync_flush = 576;
      }
      else {
-        flush = 384*3.0/2.0;
+        flush = 384*3/2;
         syncsize = 1056;
         sync_flush = syncsize - flush;
      }
@@ -194,7 +196,7 @@ double sfreq;        /* to match prototype : float args are always double */
            cbval[partition[i-1]] = cbval[partition[i-1]]/temp2;
            cbval[partition[i]] = fthr[i];
            bval_lo = fthr[i];
-           numlines[partition[i-1]] = temp2;
+           numlines[partition[i-1]] = (int)temp2;
            temp2 = 1;
         }
         else {
@@ -203,7 +205,7 @@ double sfreq;        /* to match prototype : float args are always double */
            temp2++;
         }
      }
-     numlines[partition[i-1]] = temp2;
+     numlines[partition[i-1]] = (int)temp2;
      cbval[partition[i-1]] = cbval[partition[i-1]]/temp2;
  
 /*
@@ -260,7 +262,7 @@ double sfreq;        /* to match prototype : float args are always double */
 */
         for(j=0; j<syncsize; j++){
            if(j<(sync_flush))savebuf[j] = savebuf[j+flush];
-           else savebuf[j] = *buffer++;
+           else savebuf[j] = *buf32++;
            if(j<BLKSIZE){
 /* window data with HANN window */
               wsamp_r[j] = window[j]*((FLOAT) savebuf[j]);
@@ -331,7 +333,7 @@ temp2=r[chn][new][j] * sin((double) phi[j]) - r_prime * sin((double) phi_prime);
            else if(cb[j]>.5)cb[j]=0.5;
            tb = -0.434294482*log((double) cb[j])-0.301029996;
            bc[j] = tmn[j]*tb + nmt*(1.0-tb);
-           k = cbval[j] + 0.5;
+           k = (unsigned)(cbval[j] + 0.5);
            bc[j] = (bc[j] > bmax[k]) ? bc[j] : bmax[k];
            bc[j] = exp((double) -bc[j]*LN_TO_LOG10);
         }
