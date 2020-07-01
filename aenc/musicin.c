@@ -136,7 +136,7 @@ int freq_out=48000;
 int chans_in=0;
 int chans_out=0;
 int audio_bits=0;
-int32_t audio_bytes=0;
+uint32_t audio_bytes=0;
 int raw_in=0;
 
 static void Usage(char *str)

@@ -242,4 +242,4 @@ void fft(FLOAT *x_real, FLOAT *x_imag, FLOAT *energy, FLOAT *phi, int N);
 /* The following functions are in the file "wav_io.c" */
 
 extern int wav_read_header(FILE *fd, int *rate, int *chans, int *bits,
-                    int *format, int32_t *bytes);
+                    int *format, uint32_t *bytes);

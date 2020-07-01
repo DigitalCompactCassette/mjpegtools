@@ -42,7 +42,7 @@
    returns 0 on success, -1 on error
 */
 
-static int hdr_len = 0;
+static unsigned hdr_len = 0;
 
 static uint32_t getulong(uint8_t *data)
 {
@@ -51,7 +51,7 @@ static uint32_t getulong(uint8_t *data)
    return (data[0] | (data[1]<<8) | (data[2]<<16) | (data[3]<<24));
 }
 
-static int32_t find_tag(FILE *fd, const char *tag)
+static uint32_t find_tag(FILE *fd, const char *tag)
 {
    uint8_t data[8];
    uint32_t m;
@@ -78,13 +78,13 @@ static int32_t find_tag(FILE *fd, const char *tag)
 
 error:
    mjpeg_error("EOF in WAV header when searching for tag \"%s\"",tag);
-   return -1;
+   return 0;
 }
 
 int wav_read_header(FILE *fd, int *rate, int *chans, int *bits,
-                    int *format, int32_t *bytes)
+                    int *format, uint32_t *bytes)
 {
-   int32_t fmt_len;
+   uint32_t fmt_len;
    uint32_t riff_len, m;
    uint8_t data[16];
    int n;
@@ -110,10 +110,9 @@ int wav_read_header(FILE *fd, int *rate, int *chans, int *bits,
    hdr_len = 12;
 
    fmt_len = find_tag(fd,"fmt ");
-   if(fmt_len<0) return -1;
    if(fmt_len&1) fmt_len++;
    if(fmt_len<16) {
-      mjpeg_error("WAV format len %d too short",fmt_len);
+      mjpeg_error("WAV format len %u too short (want 16)",fmt_len);
       return -1;
    }
 
@@ -136,20 +135,22 @@ int wav_read_header(FILE *fd, int *rate, int *chans, int *bits,
 
    /* skip over remaining bytes in format (if any) */
 
-   for(n=16;n<fmt_len;n++) fgetc(fd);
+   for(m=16;m<fmt_len;m++) fgetc(fd);
 
    hdr_len += fmt_len;
 
    /* Get data len */
 
    *bytes = find_tag(fd,"data");
-   if(*bytes<0) return -1;
+   if(*bytes==0) return -1;
 
+   /* 
    if(*bytes+hdr_len != riff_len+8) {
       mjpeg_warn("File length according data tag: %u",*bytes+hdr_len);
       mjpeg_warn("File length according RIFF tag: %u",riff_len+8);
       mjpeg_warn("Inconsistency is inevitable if wav's are being piped");
    }
+   */
 
    return 0;
 }

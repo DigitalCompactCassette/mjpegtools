@@ -93,7 +93,7 @@ extern int freq_out;
 extern int chans_in;
 extern int chans_out;
 extern int audio_bits;
-extern int32_t audio_bytes;
+extern uint32_t audio_bytes;
 extern int raw_in;
 
 static unsigned long nseconds = 0;
@@ -103,6 +103,29 @@ static int big_endian;
 static unsigned char *in_buff;
 static int32_t *buf_1, *buf_2, *out_buf;
 static double freq_quot;
+
+static size_t read_stdin(void *buffer, size_t count)
+{
+  size_t result;
+
+  // In WAV mode, stop at the end of the data chunk
+  // Without this, the encoder will try to encode any data at the end of the
+  // WAV file such as ID3 tags.
+  if ((!raw_in) && count > audio_bytes)
+  {
+    count = audio_bytes;
+    mjpeg_info("Reached the end of the data chunk");
+  }
+
+  result = fread(buffer, 1, count, stdin);
+
+  if (!raw_in)
+  {
+    audio_bytes -= result;
+  }
+
+  return result;
+}
 
 static void read_and_resample(void)
 {
@@ -117,7 +140,7 @@ static void read_and_resample(void)
    {
       /* Initialize, read first sample to the end of the buffer */
 
-      n = fread(in_buff+freq_in*nbps,1,nbps,stdin);
+      n = read_stdin(in_buff+freq_in*nbps,nbps);
       if(n!=nbps) {
          mjpeg_error_exit1("Error reading wave data");
 
@@ -128,7 +151,7 @@ static void read_and_resample(void)
       read exactly 1 second */
 
    memcpy(in_buff,in_buff+freq_in*nbps,nbps);
-   n = fread(in_buff+nbps,1,freq_in*nbps,stdin);
+   n = read_stdin(in_buff+nbps,freq_in*nbps);
    num_in = n/nbps + 1; // need one extra sample for resampling
 
    /* Step 1: Make host-endian signed longs from input */

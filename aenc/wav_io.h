@@ -18,6 +18,6 @@
 #define WAV_IO_H
 
 int wav_read_header(FILE *fd, int *rate, int *chans, int *bits,
-                    int *format, int32_t *bytes);
+                    int *format, uint32_t *bytes);
 
 #endif
