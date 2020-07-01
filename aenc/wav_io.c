@@ -58,7 +58,7 @@ static uint32_t find_tag(FILE *fd, const char *tag)
    unsigned n;
 
    /* scan input stream for specified tag and return its length */
-   /* returns -1 in case of error */
+   /* returns 0 in case of error */
 
    while(1)
    {
@@ -112,7 +112,7 @@ int wav_read_header(FILE *fd, int *rate, int *chans, int *bits,
    fmt_len = find_tag(fd,"fmt ");
    if(fmt_len&1) fmt_len++;
    if(fmt_len<16) {
-      mjpeg_error("WAV format len %u too short (want 16)",fmt_len);
+      mjpeg_error("WAV format len %u is too short (want at least 16)",fmt_len);
       return -1;
    }
 
