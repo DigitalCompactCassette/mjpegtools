@@ -227,7 +227,7 @@ extern void           byte_ali_putbits(Bit_stream_struc*, unsigned int, int);
 extern unsigned long  byte_ali_getbits(Bit_stream_struc*, int);
 extern unsigned long  sstell(Bit_stream_struc*);
 extern int            end_bs(Bit_stream_struc*);
-extern int            seek_sync(Bit_stream_struc*, long, int);
+extern int            seek_sync(Bit_stream_struc*, unsigned long, int);
 extern void           I_CRC_calc(frame_params*, unsigned int[2][SBLIMIT],
                         unsigned int*);
 extern void           II_CRC_calc(frame_params*, unsigned int[2][SBLIMIT],

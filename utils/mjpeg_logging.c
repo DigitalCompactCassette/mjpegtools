@@ -160,7 +160,7 @@ mjpeg_logv(log_level_t level, const char format[], va_list args)
      lock is needed hence delete.
   */
 
-  vsnprintf(buf, sizeof(buf)-1, format, args);
+  _vsnprintf(buf, sizeof(buf)-1, format, args);
   _handler(level, buf);
 }
 

@@ -829,7 +829,7 @@ Bit_stream_struc *bs;   /* bit stream structure */
   This function returns 1 if the sync was found otherwise it returns 0  */
 int seek_sync(bs, sync, N)
 Bit_stream_struc *bs;   /* bit stream structure */
-long sync;      /* sync word maximum 32 bits */
+unsigned long sync;      /* sync word maximum 32 bits */
 int N;          /* sync word length */
 {
  unsigned long aligning;

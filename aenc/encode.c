@@ -261,7 +261,7 @@ static void read_and_resample(void)
 
    /* Step 3: Change sampling frequency if necessary */
 
-   num_out = ((int64_t)num_in-1)*(int64_t)freq_out/(int64_t)freq_in;
+   num_out = (int)(((int64_t)num_in-1)*(int64_t)freq_out/(int64_t)freq_in);
    if(freq_in != freq_out)
    {
       for(n=0;n<num_out;n++)
